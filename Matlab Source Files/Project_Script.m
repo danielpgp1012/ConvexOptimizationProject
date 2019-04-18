@@ -10,4 +10,5 @@ cvx_begin
     subject to
         C * x == d
         norm( x, Inf ) <= e
-cvx_end % End of coasd;flkjasd;fas;dflkjas;dlfkjlkjde
+
+cvx_end % End 
