@@ -10,4 +10,4 @@ cvx_begin
     subject to
         C * x == d
         norm( x, Inf ) <= e
-cvx_end
+cvx_end % End of code
