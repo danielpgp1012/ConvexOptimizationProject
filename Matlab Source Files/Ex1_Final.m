@@ -1,4 +1,5 @@
 close all
+initCobraToolbox
 %% Load model
 load('ecoli_core_model.mat')
 %% Load the COBRA Toolbox
