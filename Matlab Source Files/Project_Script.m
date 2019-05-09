@@ -1,14 +1,17 @@
 %% init
 initCobraToolbox
 model = load('ecoli_core_model.mat');
-m = 20; n = 10; p = 4;
-A = randn(m,n); b = randn(m,1);
-C = randn(p,n); d = randn(p,1); e = rand;
+%%
+m = length(model.mets); n = length(model.rxns); p = 4;
+b = model.b; A = model.S;
+c = model.c; 
+biomass_idx = find(contains(model.rxns,"Biomass_Ecoli_core_N(w/GAM)-Nmet2"));
+ATP_idx = find(contains(model.rxns,'ATPM'));
 cvx_begin
     variable x(n)
-    minimize( norm( A * x - b, 2 ) )
+    maximize( c'*x )
     subject to
-        C * x == d
-        norm( x, Inf ) <= e
-
-cvx_end % End 
+        A*x == b
+        x >= model.lb
+        x <= model.ub
+cvx_end 
