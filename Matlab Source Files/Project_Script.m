@@ -15,3 +15,8 @@ cvx_begin
         x >= model.lb
         x <= model.ub
 cvx_end 
+%%
+alphas = linspace(0,1,100);
+for i=1:length(alphas)
+    
+end
