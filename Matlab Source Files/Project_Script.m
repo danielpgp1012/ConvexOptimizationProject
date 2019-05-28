@@ -1,21 +1,53 @@
 %% init
 initCobraToolbox
+%% Load model
 load('ecoli_core_model.mat');
-%%
-m = length(model.mets); n = length(model.rxns); p = 4;
-b = model.b; A = model.S;
-c = model.c; 
-biomass_idx = find(contains(model.rxns,"Biomass_Ecoli_core_N(w/GAM)-Nmet2"));
-ATP_idx = find(contains(model.rxns,'ATPM'));
-cvx_begin
-    variable x(n)
-    maximize( c'*x )
-    subject to
-        A*x == b
-        x >= model.lb
-        x <= model.ub
-cvx_end 
+%% Set consumption of all carbon substrates to 0
+[selExc,selUpt]=findExcRxns(model,0); %outputs exchange reactions
 
+uptakes=model.rxns(selExc); %selects substrates from exchange reactions
+
+substratesModel=extractSubNetwork(model,uptakes); %create submodel only
+% with given substrates of substrates
+
+cReactions=findCarbonRxns(substratesModel,1); %find substrates that contain
+% AT LEAST 1 carbon
+cReactions = findRxnIDs(model, cReactions);
+model.lb(cReactions) = 0; % set consumption to 0
+
+%% 
+
+biomass_idx = find(contains(model.rxns,"Biomass_Ecoli_core_N(w/GAM)-Nmet2"));
+succinate_idx = find(contains(model.rxns,'EX_succ(e)'));
+oxygen_idx = find(contains(model.rxns,'EX_o2(e)'));
+model.lb(succinate_idx) = -10;
+[obj,x] = optimize(model);
+
+%% change oxygen and succinate
+succ_uptake = linspace(-30,0,30);
+ox_uptake = linspace(-30,0,30);
+biomass = zeros(length(ox_uptake),length(succ_uptake));
+
+
+model=changeRxnBounds(model,cReactions,0,'b'); %set all carbon substrate uptakes to 0
+model=changeRxnBounds(model,cReactions,1000,'u'); %set upper boundary to 1000
+UpOxygen=linspace(0,30,40); %oxygen vector 
+Objective_s=zeros(length(UpSuccinate),length(UpOxygen)); %initialize biomass matrix 
+
+for i=1:length(UpOxygen) %nested for loop looking at biomass output at each glucose and oxygen combination
+    model = changeRxnBounds(model,'EX_o2(e)',-UpOxygen(i),'b');
+    for j=1:length(UpSuccinate)
+        model = changeRxnBounds(model,'EX_succ(e)',-UpSuccinate(j),'b');
+        sol_s=optimizeCbModel(model,'max');
+        Objective_s(i,j)=sol_s.obj;
+    end
+end
+
+fig6=figure;
+surfl(UpSuccinate,UpOxygen,Objective_s); %3D plot
+xlabel('Succinate Uptake [mmol/gDW/h]')
+zlabel('Biomass [mmol/gDW/h]')
+ylabel('Oxygen Uptake [mmol/gDW/h]');
 %% Clostridium Model
 
 load ('iCbu641.mat');
