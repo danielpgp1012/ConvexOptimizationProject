@@ -1,5 +1,6 @@
 %% init
 initCobraToolbox
+%%
 load('ecoli_core_model.mat');
 %%
 m = length(model.mets); n = length(model.rxns); p = 4;
