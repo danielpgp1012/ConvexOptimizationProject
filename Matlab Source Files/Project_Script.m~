@@ -1,5 +1,5 @@
 %% init
-%%initCobraToolbox
+initCobraToolbox
 %%
 %% Load model
 load('ecoli_core_model.mat');
@@ -28,11 +28,6 @@ tic;
 toc;
 
 %% Interior point method
-x = model.lb;
-func = @(x) -model.c'*x;
-options = optimoptions('fmincon','Display','iter','Algorithm','interior-point','MaxFunctionEvaluations',2000);
-S=model.S; % Extracting the 
-S=full(S); % Creating a full matrix from a sparse matrix
 fprintf("IP solution: \n");
 tic;
 [ipm_obj,ipm_x]=interior_point(model); % Solving the problem using IPM
@@ -40,10 +35,8 @@ toc;
 %% Simplex method
 fprintf("Simplex solution: \n");
 tic;
-[sim_obj,sim_x]=simplex(model); % Solving the problem using simplex method
+[_obj,ipm_x]=interior_point(model); % Solving the problem using IPM
 toc;
-
-%% Linprog
 
 
 %% change oxygen and succinate
