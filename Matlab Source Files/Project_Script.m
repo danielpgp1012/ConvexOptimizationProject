@@ -1,5 +1,6 @@
 %% init
 initCobraToolbox
+%%
 %% Load model
 load('ecoli_core_model.mat');
 %% Set consumption of all carbon substrates to 0
@@ -24,7 +25,7 @@ model.lb(succinate_idx) = -10;
 fprintf("LP solution: \n");
 tic;
 [obj,x] = optimize(model);
-toc
+toc;
 
 %% Interior point method
 x = model.lb;
