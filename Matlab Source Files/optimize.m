@@ -14,3 +14,10 @@ cvx_begin
 cvx_end 
 obj = cvx_optval;
 x_star = x;
+
+
+
+
+        
+        
+    
