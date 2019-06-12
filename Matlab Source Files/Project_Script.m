@@ -27,14 +27,17 @@ tic;
 toc
 
 %% Interior point method
+x = model.lb;
 func = @(x) -model.c'*x;
-options = optimoptions('fmincon','Display','iter','Algorithm','sqp','MaxFunctionEvaluations',300);
+options = optimoptions('fmincon','Display','iter','Algorithm','interior-point','MaxFunctionEvaluations',2000);
 S=model.S; % Extracting the 
 S=full(S); % Creating a full matrix from a sparse matrix
 fprintf("IP solution: \n");
 tic;
 optimal=fmincon(func,x,[],[],S,model.b,model.lb,model.ub,[],options); % Solving the problem using IPM
 toc;
+
+%% Linprog
 
 
 %% change oxygen and succinate
