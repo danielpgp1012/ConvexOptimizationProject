@@ -1,5 +1,5 @@
 %% init
-%%initCobraToolbox
+initCobraToolbox
 %%
 %% Load model
 load('ecoli_core_model.mat');
@@ -35,8 +35,9 @@ toc;
 %% Simplex method
 fprintf("Simplex solution: \n");
 tic;
-[sim_obj,sim_x]=simplex(model); % Solving the problem using simplex method
+[_obj,ipm_x]=interior_point(model); % Solving the problem using IPM
 toc;
+
 
 %% change oxygen and succinate
 %succ_uptake = linspace(-30,0,30);
