@@ -1,0 +1,13 @@
+function [obj,x_star]=interior_point(model)
+options_ipm = optimoptions('fmincon','Display','iter','Algorithm','interior-point','StepTolerance',1e-3,'MaxFunctionEvaluations',565);
+A=model.S; A=full(A); % Creating a dense matrix from a sparse matrix
+b = model.b; c = model.c; 
+lb = model.lb; ub = model.ub;
+x0=lb;
+func = @(x) -c'*x;
+fprintf("IPM solution: \n");
+tic;
+x_star=fmincon(func,x0,A,b,A,b,lb,ub,[],options_ipm); % Solving the problem using IPM
+toc;
+obj=c'*x_star;
+end
