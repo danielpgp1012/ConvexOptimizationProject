@@ -11,7 +11,7 @@ cvx_begin
     variable y(m)
     variable l(n)
     variable g(n)
-    maximize (-b'*(y)+ l'*low - g'*high)
+    minimize (b'*(y) + -l'*low + g'*high)
     subject to 
         A'*y-l== -g 
         l >= zeros(n,1)
