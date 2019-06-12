@@ -25,7 +25,7 @@ model.lb(succinate_idx) = -10;
 fprintf("LP solution: \n");
 tic;
 [obj,x] = optimize(model);
-toc
+toc;
 
 %% Interior point method
 func = @(x) -model.c'*x;
