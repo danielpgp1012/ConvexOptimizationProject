@@ -285,8 +285,10 @@ for i=1:length(UpOxygen) %nested for loop looking at biomass output at each gluc
     model = changeRxnBounds(model,'EX_o2(e)',-UpOxygen(i),'b');
     for j=1:length(UpSuccinate)
         model = changeRxnBounds(model,'EX_succ(e)',-UpSuccinate(j),'b');
-        sol_s=optimizeCbModel(model,'max');
-        Objective_s(i,j)=sol_s.obj;
+        sol_s = interior_point(model);
+        %sol_s=optimizeCbModel(model,'max');
+        %Objective_s(i,j)=sol_s.obj;
+        Objective_s(i,j) = sol_s;
     end
 end
 

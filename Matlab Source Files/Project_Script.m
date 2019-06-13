@@ -1,5 +1,5 @@
 %% init
-%%initCobraToolbox
+initCobraToolbox
 %%
 %% Load model
 load('ecoli_core_model.mat');
@@ -11,9 +11,9 @@ uptakes=model.rxns(selExc); %selects substrates from exchange reactions
 substratesModel=extractSubNetwork(model,uptakes); %create submodel only
 % with given substrates of substrates
 
-cReactions=findCarbonRxns(substratesModel,1); %find substrates that contain
+cReaction_names=findCarbonRxns(substratesModel,1); %find substrates that contain
 % AT LEAST 1 carbon
-cReactions = findRxnIDs(model, cReactions);
+cReactions = findRxnIDs(model, cReaction_names);
 
 %% Sample Optimization with succinate uptake of -10 g/h
 
@@ -28,15 +28,14 @@ tic;
 toc;
 
 %% Interior point method
-x = model.lb;
-func = @(x) -model.c'*x;
-options = optimoptions('fmincon','Display','iter','Algorithm','interior-point','MaxFunctionEvaluations',2000);
-S=model.S; % Extracting the 
-S=full(S); % Creating a full matrix from a sparse matrix
+%x = model.lb;
+%func = @(x) -model.c'*x;
+%options = optimoptions('fmincon','Display','iter','Algorithm','interior-point','MaxFunctionEvaluations',2000);
+%S=model.S; % Extracting the 
+%S=full(S); % Creating a full matrix from a sparse matrix
 fprintf("IP solution: \n");
-tic;
 [ipm_obj,ipm_x]=interior_point(model); % Solving the problem using IPM
-toc;
+
 %% Simplex method
 fprintf("Simplex solution: \n");
 tic;
@@ -47,27 +46,23 @@ toc;
 
 
 %% change oxygen and succinate
-%succ_uptake = linspace(-30,0,30);
-% ox_uptake = linspace(-30,0,30);
-% biomass = zeros(length(ox_uptake),length(succ_uptake));
-% 
-% 
-% model=changeRxnBounds(model,cReactions,0,'b'); %set all carbon substrate uptakes to 0
-% model=changeRxnBounds(model,cReactions,1000,'u'); %set upper boundary to 1000
-% UpOxygen=linspace(0,30,40); %oxygen vector 
-% Objective_s=zeros(length(UpSuccinate),length(UpOxygen)); %initialize biomass matrix 
-% 
-% for i=1:length(UpOxygen) %nested for loop looking at biomass output at each glucose and oxygen combination
-%     model = changeRxnBounds(model,'EX_o2(e)',-UpOxygen(i),'b');
-%     for j=1:length(UpSuccinate)
-%         model = changeRxnBounds(model,'EX_succ(e)',-UpSuccinate(j),'b');
-%         sol_s=optimizeCbModel(model,'max');
-%         Objective_s(i,j)=sol_s.obj;
-%     end
-% end
-% 
-% fig6=figure;
-% surfl(UpSuccinate,UpOxygen,Objective_s); %3D plot
-% xlabel('Succinate Uptake [mmol/gDW/h]')
-% zlabel('Biomass [mmol/gDW/h]')
-% ylabel('Oxygen Uptake [mmol/gDW/h]');
+%model.ub(cReactions) = 1000;
+UpOxygen=linspace(0,30,40); %oxygen vector 
+UpSuccinate = linspace(0,30,40); % uptake Succinate
+Objective_s=zeros(length(UpSuccinate),length(UpOxygen)); %initialize biomass matrix 
+for i=1:length(UpOxygen) %nested for loop looking at biomass output at each glucose and oxygen combination
+    model.lb(oxygen_idx) = -UpOxygen(i);
+    %model.ub(oxygen_idx) = -UpOxygen(i);
+    for j=1:length(UpSuccinate)
+        model.lb(succinate_idx)=-UpSuccinate(j);
+        %model.ub(succinate_idx)=-UpSuccinate(j);
+        [sol_s,]=interior_point(model);
+        Objective_s(i,j)=sol_s;
+    end
+end
+
+fig6=figure;
+surfl(UpSuccinate,UpOxygen,Objective_s); %3D plot
+xlabel('Succinate Uptake [mmol/gDW/h]')
+zlabel('Biomass [mmol/gDW/h]')
+ylabel('Oxygen Uptake [mmol/gDW/h]');
